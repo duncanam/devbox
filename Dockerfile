@@ -12,6 +12,7 @@ FROM ubuntu:noble-20241118.1
 ENV NEOVIM_RELEASE_VERSION="0.10.1"
 ENV NEOVIM_SHA256="4867de01a17f6083f902f8aa5215b40b0ed3a36e83cc0293de3f11708f1f9793"
 ENV LAZYGIT_VERSION="0.44.1"
+ENV YAZY_VERSION="0.4.1"
 
 ######################################################################
 #                               PACKAGES
@@ -28,6 +29,7 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
   nodejs \
   ripgrep \
   tar \
+  unzip \
   wget \
   vim
 
@@ -55,3 +57,27 @@ RUN curl -L "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYG
   mkdir -p /opt/lazygit/bin && \
   mv lazygit /opt/lazygit/bin/lazygit
 ENV PATH="$PATH:/opt/lazygit/bin"
+
+######################################################################
+#                               YAZI
+######################################################################
+
+RUN mkdir -p /tmp/yazi
+WORKDIR /tmp/yazi
+RUN curl -L "https://github.com/sxyazi/yazi/releases/download/v${YAZY_VERSION}/yazi-x86_64-unknown-linux-gnu.zip" -o yazi.zip && \
+  unzip yazi.zip && \
+  mv yazi-x86_64-unknown-linux-gnu /opt/yazi
+ENV PATH="$PATH:/opt/yazi"
+COPY scripts/yazi-cd.sh /tmp/yazi/
+RUN cat yazi-cd.sh >> /root/.bashrc
+
+######################################################################
+#                               RUST
+######################################################################
+
+#RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+#RUN /root/.cargo/bin/cargo install \
+#  cargo-nextest \
+#  rust-analyzer \
+#  rustfmt
+
