@@ -12,7 +12,7 @@ FROM ubuntu:noble-20241118.1
 ENV NEOVIM_RELEASE_VERSION="0.10.1"
 ENV NEOVIM_SHA256="4867de01a17f6083f902f8aa5215b40b0ed3a36e83cc0293de3f11708f1f9793"
 ENV LAZYGIT_VERSION="0.44.1"
-ENV YAZY_VERSION="0.4.1"
+ENV YAZI_VERSION="0.4.1"
 
 ######################################################################
 #                               PACKAGES
@@ -64,7 +64,7 @@ ENV PATH="$PATH:/opt/lazygit/bin"
 
 RUN mkdir -p /tmp/yazi
 WORKDIR /tmp/yazi
-RUN curl -L "https://github.com/sxyazi/yazi/releases/download/v${YAZY_VERSION}/yazi-x86_64-unknown-linux-gnu.zip" -o yazi.zip && \
+RUN curl -L "https://github.com/sxyazi/yazi/releases/download/v${YAZI_VERSION}/yazi-x86_64-unknown-linux-gnu.zip" -o yazi.zip && \
   unzip yazi.zip && \
   mv yazi-x86_64-unknown-linux-gnu /opt/yazi
 ENV PATH="$PATH:/opt/yazi"
@@ -75,9 +75,7 @@ RUN cat yazi-cd.sh >> /root/.bashrc
 #                               RUST
 ######################################################################
 
-#RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-#RUN /root/.cargo/bin/cargo install \
-#  cargo-nextest \
-#  rust-analyzer \
-#  rustfmt
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN /root/.cargo/bin/cargo install cargo-nextest
+RUN /root/.cargo/bin/rustup component add rustfmt
 
