@@ -21,7 +21,9 @@ ENV YAZI_VERSION="0.4.1"
 RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
   clang \
   curl \
+  fontconfig \
   git \
+  luarocks \
   make \
   pip \
   python3 \
@@ -33,18 +35,12 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
   wget \
   vim
 
-######################################################################
-#                               NEOVIM
-######################################################################
-
-RUN mkdir -p /tmp/neovim
-WORKDIR /tmp/neovim
-# For some reason -O is not passing the checksum
-RUN curl -L "https://github.com/neovim/neovim/releases/download/v${NEOVIM_RELEASE_VERSION}/nvim-linux64.tar.gz" -o nvim-linux64.tar.gz && \
-  echo "${NEOVIM_SHA256} nvim-linux64.tar.gz" | sha256sum -c - && \
-  tar -xzf nvim-linux64.tar.gz && \
-  mv nvim-linux64 /opt/nvim
-ENV PATH="$PATH:/opt/nvim/bin"
+RUN mkdir -p /root/.local/share/fonts
+WORKDIR /root/.local/share/fonts
+RUN curl -L "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/JetBrainsMono.zip" -o JetBrainsMono.zip && \
+  unzip JetBrainsMono.zip && \
+  rm JetBrainsMono.zip && \
+  fc-cache -fv
 
 ######################################################################
 #                               LAZYGIT
@@ -75,7 +71,28 @@ RUN cat yazi-cd.sh >> /root/.bashrc
 #                               RUST
 ######################################################################
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN /root/.cargo/bin/cargo install cargo-nextest
-RUN /root/.cargo/bin/rustup component add rustfmt
+#RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+#RUN /root/.cargo/bin/cargo install \
+#  cargo-nextest \
+#  ripgrep
+#RUN /root/.cargo/bin/rustup component add rustfmt
 
+
+######################################################################
+#                               NEOVIM
+######################################################################
+
+RUN mkdir -p /tmp/neovim
+WORKDIR /tmp/neovim
+# For some reason -O is not passing the checksum
+RUN curl -L "https://github.com/neovim/neovim/releases/download/v${NEOVIM_RELEASE_VERSION}/nvim-linux64.tar.gz" -o nvim-linux64.tar.gz && \
+  echo "${NEOVIM_SHA256} nvim-linux64.tar.gz" | sha256sum -c - && \
+  tar -xzf nvim-linux64.tar.gz && \
+  mv nvim-linux64 /opt/nvim
+ENV PATH="$PATH:/opt/nvim/bin"
+
+COPY .config /root/.config
+
+RUN nvim --headless +Lazy sync +qall
+#RUN nvim --headless -c "MasonInstallAll" +qall
+RUN nvim --headless -c "MasonInstall rust-analyzer" +qall
