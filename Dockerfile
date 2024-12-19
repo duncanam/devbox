@@ -93,6 +93,6 @@ ENV PATH="$PATH:/opt/nvim/bin"
 
 COPY .config /root/.config
 
-RUN nvim --headless +Lazy sync +qall
+#RUN nvim --headless +Lazy sync +qall
 #RUN nvim --headless -c "MasonInstallAll" +qall
-RUN nvim --headless -c "MasonInstall rust-analyzer" +qall
+#RUN nvim --headless -c "MasonInstall rust-analyzer" +qall
