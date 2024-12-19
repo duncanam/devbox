@@ -88,9 +88,7 @@ end, {})
 -- Colorscheme
 require("catppuccin").setup({flavour="mocha"})
 vim.cmd.colorscheme "catppuccin"
-vim.api.nvim_set_hl(0, 'LineNrAbove', { fg='#313244' })
-vim.api.nvim_set_hl(0, 'LineNr', { fg='#969ed3' , bold=true})
-vim.api.nvim_set_hl(0, 'LineNrBelow', { fg='#313244' })
+vim.api.nvim_set_hl(0, 'CursorLineNr', { fg='#969ed3' , bold=true})
 
 -- Which-Key
 local wk = require("which-key")
