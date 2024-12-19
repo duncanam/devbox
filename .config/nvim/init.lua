@@ -3,7 +3,7 @@
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
--- Suggested by nvim-tree
+-- Suggested by nvim-tree and bufferline
 vim.opt.termguicolors = true
 
 -- Relative line numbers
@@ -16,11 +16,15 @@ vim.api.nvim_create_autocmd("InsertLeave", { command = [[set relativenumber]] })
 -- Plugins
 require("config.lazy")
 
---vim.api.nvim_create_user_command("MasonInstallAll", function ()
---  vim.cmd("MasonInstall " .. table.concat(ensure_installed, " "))
---end, {})
+-- Used by Docker to install Mason plugins during docker build
+vim.api.nvim_create_user_command("MasonInstallAll", function ()
+  -- TODO: this should be only defined once, yet it's also in the plugin file mason.lua
+  vim.cmd("MasonInstall " .. table.concat({ "rust-analyzer" }, " "))
+end, {})
 
--- Colorscheme
---vim.api.nvim_set_hl(0, 'CursorLineNr', { fg='#969ed3' , bold=true})
-
+-- TODO: this is not hightlighting the current line number correctly?
 vim.api.nvim_set_hl(0, 'CursorLineNr', { fg='#969ed3' , bold=true})
+
+-- Buffer (Tab) Switching
+vim.api.nvim_set_keymap("n", "<S-Right>", ":BufferLineCycleNext<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<S-Left>", ":BufferLineCyclePrev<CR>", { noremap = true, silent = true })
