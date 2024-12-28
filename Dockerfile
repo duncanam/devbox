@@ -98,7 +98,8 @@ RUN curl -L "https://github.com/neovim/neovim/releases/download/v${NEOVIM_RELEAS
   tar -xzf nvim-linux64.tar.gz && \
   mv nvim-linux64 /opt/nvim
 ENV PATH="$PATH:/opt/nvim/bin"
-RUN echo "export EDITOR=nvim" >> /root/.bashrc
+RUN echo "export EDITOR=nvim" >> /root/.bashrc && \
+  alias n="neovim"
 
 COPY .config /root/.config
 
