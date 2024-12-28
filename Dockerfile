@@ -71,12 +71,11 @@ RUN cat yazi-cd.sh >> /root/.bashrc
 #                               RUST
 ######################################################################
 
-#RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-#RUN /root/.cargo/bin/cargo install \
-#  cargo-nextest \
-#  ripgrep
-#RUN /root/.cargo/bin/rustup component add rustfmt
-
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN /root/.cargo/bin/cargo install \
+  cargo-nextest \
+  ripgrep
+RUN /root/.cargo/bin/rustup component add rustfmt
 
 ######################################################################
 #                               NEOVIM
@@ -95,3 +94,9 @@ COPY .config /root/.config
 
 RUN nvim --headless +Lazy sync +qall
 RUN nvim --headless -c "MasonInstallAll" +qall
+
+######################################################################
+#                               FINISH
+######################################################################
+WORKDIR /root
+RUN bash
