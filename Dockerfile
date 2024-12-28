@@ -13,6 +13,9 @@ ENV NEOVIM_RELEASE_VERSION="0.10.1"
 ENV NEOVIM_SHA256="4867de01a17f6083f902f8aa5215b40b0ed3a36e83cc0293de3f11708f1f9793"
 ENV LAZYGIT_VERSION="0.44.1"
 ENV YAZI_VERSION="0.4.1"
+ENV GIT_USERNAME="duncanam"
+ENV GIT_EMAIL="22781288+duncanam@users.noreply.github.com"
+ENV GIT_DEFAULT_BRANCH="main"
 
 ######################################################################
 #                               PACKAGES
@@ -43,6 +46,16 @@ RUN curl -L "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/Je
   fc-cache -fv
 
 ######################################################################
+#                               RUST
+######################################################################
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN /root/.cargo/bin/cargo install \
+  cargo-nextest \
+  ripgrep
+RUN /root/.cargo/bin/rustup component add rustfmt
+
+######################################################################
 #                               LAZYGIT
 ######################################################################
 
@@ -53,6 +66,10 @@ RUN curl -L "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYG
   mkdir -p /opt/lazygit/bin && \
   mv lazygit /opt/lazygit/bin/lazygit
 ENV PATH="$PATH:/opt/lazygit/bin"
+RUN git config --global user.name ${GIT_USERNAME} && \
+  git config --global user.email ${GIT_EMAIL} && \
+  git config --global init.defaultbranch ${GIT_DEFAULT_BRANCH} && \
+  git config --global core.editor "nvim"
 
 ######################################################################
 #                               YAZI
@@ -68,16 +85,6 @@ COPY scripts/yazi-cd.sh /tmp/yazi/
 RUN cat yazi-cd.sh >> /root/.bashrc
 
 ######################################################################
-#                               RUST
-######################################################################
-
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN /root/.cargo/bin/cargo install \
-  cargo-nextest \
-  ripgrep
-RUN /root/.cargo/bin/rustup component add rustfmt
-
-######################################################################
 #                               NEOVIM
 ######################################################################
 
@@ -89,6 +96,7 @@ RUN curl -L "https://github.com/neovim/neovim/releases/download/v${NEOVIM_RELEAS
   tar -xzf nvim-linux64.tar.gz && \
   mv nvim-linux64 /opt/nvim
 ENV PATH="$PATH:/opt/nvim/bin"
+RUN echo "export EDITOR=nvim" >> /root/.bashrc
 
 COPY .config /root/.config
 
