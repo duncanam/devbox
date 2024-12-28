@@ -23,7 +23,7 @@ return {
             { "<leader>q", "<cmd>q<cr>", desc = "Quit" }, -- no need to specify mode since it's inherited
             { "<leader>w", "<cmd>w<cr>", desc = "Write" },
           },
-          { "<leader>e", "<cmd>NvimTreeToggle<cr>", desc = "Explorer", mode = "n" },
+          { "<leader>e", "<cmd>NvimTreeToggle<cr>", desc = "File Explorer", mode = "n" },
         }
       }
     },
