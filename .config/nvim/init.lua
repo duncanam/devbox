@@ -22,8 +22,8 @@ vim.api.nvim_create_user_command("MasonInstallAll", function ()
   vim.cmd("MasonInstall " .. table.concat({ "rust-analyzer" }, " "))
 end, {})
 
--- TODO: this is not hightlighting the current line number correctly?
-vim.api.nvim_set_hl(0, 'CursorLineNr', { fg='#969ed3' , bold=true})
+-- Highlight cursorline and line number
+vim.opt.cursorline = true
 
 -- Buffer (Tab) Switching
 vim.api.nvim_set_keymap("n", "<S-Right>", ":BufferLineCycleNext<CR>", { noremap = true, silent = true })
