@@ -24,6 +24,7 @@ ENV GIT_DEFAULT_BRANCH="main"
 RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
   clang \
   curl \
+  fd-find \
   fontconfig \
   git \
   luarocks \
@@ -99,7 +100,7 @@ RUN curl -L "https://github.com/neovim/neovim/releases/download/v${NEOVIM_RELEAS
   mv nvim-linux64 /opt/nvim
 ENV PATH="$PATH:/opt/nvim/bin"
 RUN echo "export EDITOR=nvim" >> /root/.bashrc && \
-  alias n="neovim"
+  alias n="neovim" >> /root/.bashrc
 
 COPY .config /root/.config
 

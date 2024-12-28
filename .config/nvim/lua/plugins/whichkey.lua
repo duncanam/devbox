@@ -7,6 +7,7 @@ return {
         {
           { "<leader>f", group = "file" }, -- group
           { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find File", mode = "n" },
+          { "<leader>fg", "<cmd>Telescope live_grep<cr>", desc = "Live Grep", mode = "n" },
           { "<leader>fn", desc = "New File" },
           { "<leader>W", proxy = "<c-w>", group = "windows" }, -- proxy to window mappings
           { "<leader>c", "<cmd>bd<cr>", desc = "Close Buffer" },
