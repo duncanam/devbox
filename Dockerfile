@@ -66,6 +66,8 @@ RUN curl -L "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYG
   mkdir -p /opt/lazygit/bin && \
   mv lazygit /opt/lazygit/bin/lazygit
 ENV PATH="$PATH:/opt/lazygit/bin"
+RUN mkdir -p /root/.config/lazygit && \
+  echo "disableStartupPopups: true" >> /root/.config/lazygit/config.yml
 RUN git config --global user.name ${GIT_USERNAME} && \
   git config --global user.email ${GIT_EMAIL} && \
   git config --global init.defaultbranch ${GIT_DEFAULT_BRANCH} && \
