@@ -42,6 +42,8 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
   vim \
   zsh
 
+RUN chsh -s $(which zsh)
+
 RUN useradd -ms /bin/zsh ${USERNAME}
 RUN usermod -aG sudo ${USERNAME}
 USER ${USERNAME}
@@ -54,14 +56,27 @@ RUN curl -L "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/Je
   fc-cache -fv
 
 ######################################################################
+#                               ZSH
+######################################################################
+
+# TODO: this seems odd that I have to specifically run this as root
+USER root
+COPY .config/.zshrc /home/${USERNAME}/.zshrc
+RUN chmod a+rwx /home/${USERNAME}/.zshrc
+USER ${USERNAME}
+
+RUN  echo 'export SHELL="/bin/zsh"' >> /home/${USERNAME}/.zshrc
+RUN git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
+
+######################################################################
 #                               RUST
 ######################################################################
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN ~/.cargo/bin/cargo install \
-  cargo-nextest \
-  ripgrep
-RUN ~/.cargo/bin/rustup component add rustfmt
+#RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+#RUN ~/.cargo/bin/cargo install \
+#  cargo-nextest \
+#  ripgrep
+#RUN ~/.cargo/bin/rustup component add rustfmt
 
 ######################################################################
 #                               LAZYGIT
@@ -74,8 +89,7 @@ RUN curl -L "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYG
   mkdir -p ~/bin && \
   mv lazygit ~/bin/lazygit
 ENV PATH="$PATH:~/bin"
-RUN echo 'export PATH="$PATH:/home/'"${USERNAME}"'/bin"' >> ~/.zshrc && \
-  echo "alias lg='lazygit'" >> ~/.zshrc
+RUN echo 'export PATH="$PATH:/home/'"${USERNAME}"'/bin"' >> ~/.zshrc
 RUN mkdir -p ~/.config/lazygit && \
   echo "disableStartupPopups: true" >> ~/.config/lazygit/config.yml
 RUN git config --global user.name ${GIT_USERNAME} && \
@@ -110,8 +124,6 @@ RUN curl -L "https://github.com/neovim/neovim/releases/download/v${NEOVIM_RELEAS
   mv nvim-linux64 ~/bin/nvim
 ENV PATH="$PATH:~/bin/nvim/bin"
 RUN echo 'export PATH="$PATH:/home/'"${USERNAME}"'/bin/nvim/bin"' >> ~/.zshrc
-RUN echo "export EDITOR=nvim" >> ~/.zshrc && \
-  echo "alias n='nvim'" >> ~/.zshrc
 
 RUN git clone https://github.com/NvChad/starter ~/.config/nvim
 
@@ -119,14 +131,6 @@ RUN git clone https://github.com/NvChad/starter ~/.config/nvim
 RUN ~/bin/nvim/bin/nvim --headless +Lazy sync +qall
 RUN ~/bin/nvim/bin/nvim --headless -c "MasonInstallAll" +qall
 
-######################################################################
-#                               ZSH
-######################################################################
-
-USER root
-RUN chsh -s $(which zsh) && \
-  echo 'export SHELL="/bin/zsh"' >> /home/${USERNAME}/.zshrc
-USER ${USERNAME}
 
 ######################################################################
 #                               FINISH
