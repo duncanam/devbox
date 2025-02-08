@@ -9,6 +9,7 @@
 
 FROM ubuntu:noble-20241118.1
 
+ENV USERNAME="duncan"
 ENV NEOVIM_RELEASE_VERSION="0.10.1"
 ENV NEOVIM_SHA256="4867de01a17f6083f902f8aa5215b40b0ed3a36e83cc0293de3f11708f1f9793"
 ENV LAZYGIT_VERSION="0.44.1"
@@ -34,13 +35,18 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
   npm \
   nodejs \
   ripgrep \
+  sudo \
   tar \
   unzip \
   wget \
   vim
 
-RUN mkdir -p /root/.local/share/fonts
-WORKDIR /root/.local/share/fonts
+RUN useradd -ms /bin/bash ${USERNAME}
+RUN usermod -aG sudo ${USERNAME}
+USER ${USERNAME}
+
+RUN mkdir -p ~/.local/share/fonts
+WORKDIR /home/${USERNAME}/.local/share/fonts
 RUN curl -L "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/JetBrainsMono.zip" -o JetBrainsMono.zip && \
   unzip JetBrainsMono.zip && \
   rm JetBrainsMono.zip && \
@@ -51,10 +57,10 @@ RUN curl -L "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/Je
 ######################################################################
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN /root/.cargo/bin/cargo install \
+RUN ~/.cargo/bin/cargo install \
   cargo-nextest \
   ripgrep
-RUN /root/.cargo/bin/rustup component add rustfmt
+RUN ~/.cargo/bin/rustup component add rustfmt
 
 ######################################################################
 #                               LAZYGIT
@@ -64,11 +70,11 @@ RUN mkdir -p /tmp/lazygit
 WORKDIR /tmp/lazygit
 RUN curl -L "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" -o lazygit.tar.gz && \
   tar -xzf lazygit.tar.gz && \
-  mkdir -p /opt/lazygit/bin && \
-  mv lazygit /opt/lazygit/bin/lazygit
-ENV PATH="$PATH:/opt/lazygit/bin"
-RUN mkdir -p /root/.config/lazygit && \
-  echo "disableStartupPopups: true" >> /root/.config/lazygit/config.yml
+  mkdir -p ~/bin && \
+  mv lazygit ~/bin/lazygit
+ENV PATH="$PATH:~/bin"
+RUN mkdir -p ~/.config/lazygit && \
+  echo "disableStartupPopups: true" >> ~/.config/lazygit/config.yml
 RUN git config --global user.name ${GIT_USERNAME} && \
   git config --global user.email ${GIT_EMAIL} && \
   git config --global init.defaultbranch ${GIT_DEFAULT_BRANCH} && \
@@ -82,10 +88,10 @@ RUN mkdir -p /tmp/yazi
 WORKDIR /tmp/yazi
 RUN curl -L "https://github.com/sxyazi/yazi/releases/download/v${YAZI_VERSION}/yazi-x86_64-unknown-linux-gnu.zip" -o yazi.zip && \
   unzip yazi.zip && \
-  mv yazi-x86_64-unknown-linux-gnu /opt/yazi
-ENV PATH="$PATH:/opt/yazi"
+  mv yazi-x86_64-unknown-linux-gnu ~/bin/yazi
+ENV PATH="$PATH:~/bin/yazi"
 COPY scripts/yazi-cd.sh /tmp/yazi/
-RUN cat yazi-cd.sh >> /root/.bashrc
+RUN cat yazi-cd.sh >> ~/.bashrc
 
 ######################################################################
 #                               NEOVIM
@@ -97,18 +103,19 @@ WORKDIR /tmp/neovim
 RUN curl -L "https://github.com/neovim/neovim/releases/download/v${NEOVIM_RELEASE_VERSION}/nvim-linux64.tar.gz" -o nvim-linux64.tar.gz && \
   echo "${NEOVIM_SHA256} nvim-linux64.tar.gz" | sha256sum -c - && \
   tar -xzf nvim-linux64.tar.gz && \
-  mv nvim-linux64 /opt/nvim
-ENV PATH="$PATH:/opt/nvim/bin"
-RUN echo "export EDITOR=nvim" >> /root/.bashrc && \
-  echo "alias n='nvim'" >> /root/.bashrc
+  mv nvim-linux64 ~/bin/nvim
+ENV PATH="$PATH:~/bin/nvim/bin"
+RUN echo "export EDITOR=nvim" >> ~/.bashrc && \
+  echo "alias n='nvim'" >> ~/.bashrc
 
-COPY .config /root/.config
+RUN git clone https://github.com/NvChad/starter ~/.config/nvim
 
-RUN nvim --headless +Lazy sync +qall
-RUN nvim --headless -c "MasonInstallAll" +qall
+# TODO: even though this is on the path, it can't find it?
+RUN ~/bin/nvim/bin/nvim --headless +Lazy sync +qall
+RUN ~/bin/nvim/bin/nvim --headless -c "MasonInstallAll" +qall
 
 ######################################################################
 #                               FINISH
 ######################################################################
-WORKDIR /root
+WORKDIR /home/${USERNAME}
 RUN bash
