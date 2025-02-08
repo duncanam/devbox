@@ -74,7 +74,7 @@ RUN curl -L "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYG
   mkdir -p ~/bin && \
   mv lazygit ~/bin/lazygit
 ENV PATH="$PATH:~/bin"
-RUN echo 'export PATH="$PATH:/home/${USERNAME}/bin"' >> /home/${USERNAME}/.zshrc && \
+RUN echo 'export PATH="$PATH:/home/'"${USERNAME}"'/bin"' >> ~/.zshrc && \
   echo "alias lg='lazygit'" >> ~/.zshrc
 RUN mkdir -p ~/.config/lazygit && \
   echo "disableStartupPopups: true" >> ~/.config/lazygit/config.yml
@@ -93,7 +93,7 @@ RUN curl -L "https://github.com/sxyazi/yazi/releases/download/v${YAZI_VERSION}/y
   unzip yazi.zip && \
   mv yazi-x86_64-unknown-linux-gnu ~/bin/yazi
 ENV PATH="$PATH:~/bin/yazi"
-RUN echo 'export PATH="$PATH:/home/${USERNAME}/bin/yazi"' >> /home/${USERNAME}/.zshrc
+RUN echo 'export PATH="$PATH:/home/'"${USERNAME}"'/bin/yazi"' >> ~/.zshrc
 COPY scripts/yazi-cd.sh /tmp/yazi/
 RUN cat yazi-cd.sh >> ~/.zshrc
 
@@ -109,7 +109,7 @@ RUN curl -L "https://github.com/neovim/neovim/releases/download/v${NEOVIM_RELEAS
   tar -xzf nvim-linux64.tar.gz && \
   mv nvim-linux64 ~/bin/nvim
 ENV PATH="$PATH:~/bin/nvim/bin"
-RUN echo 'export PATH="$PATH:/home/${USERNAME}/bin/nvim/bin"' >> /home/${USERNAME}/.zshrc
+RUN echo 'export PATH="$PATH:/home/'"${USERNAME}"'/bin/nvim/bin"' >> ~/.zshrc
 RUN echo "export EDITOR=nvim" >> ~/.zshrc && \
   echo "alias n='nvim'" >> ~/.zshrc
 
@@ -124,7 +124,8 @@ RUN ~/bin/nvim/bin/nvim --headless -c "MasonInstallAll" +qall
 ######################################################################
 
 USER root
-RUN chsh -s $(which zsh)
+RUN chsh -s $(which zsh) && \
+  echo 'export SHELL="/bin/zsh"' >> /home/${USERNAME}/.zshrc
 USER ${USERNAME}
 
 ######################################################################
