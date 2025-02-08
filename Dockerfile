@@ -39,9 +39,10 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
   tar \
   unzip \
   wget \
-  vim
+  vim \
+  zsh
 
-RUN useradd -ms /bin/bash ${USERNAME}
+RUN useradd -ms /bin/zsh ${USERNAME}
 RUN usermod -aG sudo ${USERNAME}
 USER ${USERNAME}
 
@@ -73,6 +74,8 @@ RUN curl -L "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYG
   mkdir -p ~/bin && \
   mv lazygit ~/bin/lazygit
 ENV PATH="$PATH:~/bin"
+RUN echo 'export PATH="$PATH:/home/${USERNAME}/bin"' >> /home/${USERNAME}/.zshrc && \
+  echo "alias lg='lazygit'" >> ~/.zshrc
 RUN mkdir -p ~/.config/lazygit && \
   echo "disableStartupPopups: true" >> ~/.config/lazygit/config.yml
 RUN git config --global user.name ${GIT_USERNAME} && \
@@ -90,8 +93,9 @@ RUN curl -L "https://github.com/sxyazi/yazi/releases/download/v${YAZI_VERSION}/y
   unzip yazi.zip && \
   mv yazi-x86_64-unknown-linux-gnu ~/bin/yazi
 ENV PATH="$PATH:~/bin/yazi"
+RUN echo 'export PATH="$PATH:/home/${USERNAME}/bin/yazi"' >> /home/${USERNAME}/.zshrc
 COPY scripts/yazi-cd.sh /tmp/yazi/
-RUN cat yazi-cd.sh >> ~/.bashrc
+RUN cat yazi-cd.sh >> ~/.zshrc
 
 ######################################################################
 #                               NEOVIM
@@ -105,8 +109,9 @@ RUN curl -L "https://github.com/neovim/neovim/releases/download/v${NEOVIM_RELEAS
   tar -xzf nvim-linux64.tar.gz && \
   mv nvim-linux64 ~/bin/nvim
 ENV PATH="$PATH:~/bin/nvim/bin"
-RUN echo "export EDITOR=nvim" >> ~/.bashrc && \
-  echo "alias n='nvim'" >> ~/.bashrc
+RUN echo 'export PATH="$PATH:/home/${USERNAME}/bin/nvim/bin"' >> /home/${USERNAME}/.zshrc
+RUN echo "export EDITOR=nvim" >> ~/.zshrc && \
+  echo "alias n='nvim'" >> ~/.zshrc
 
 RUN git clone https://github.com/NvChad/starter ~/.config/nvim
 
@@ -115,7 +120,15 @@ RUN ~/bin/nvim/bin/nvim --headless +Lazy sync +qall
 RUN ~/bin/nvim/bin/nvim --headless -c "MasonInstallAll" +qall
 
 ######################################################################
+#                               ZSH
+######################################################################
+
+USER root
+RUN chsh -s $(which zsh)
+USER ${USERNAME}
+
+######################################################################
 #                               FINISH
 ######################################################################
 WORKDIR /home/${USERNAME}
-RUN bash
+ENTRYPOINT [ "/bin/zsh" ]
