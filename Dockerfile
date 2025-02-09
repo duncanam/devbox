@@ -17,6 +17,7 @@ ENV YAZI_VERSION="0.4.1"
 ENV GIT_USERNAME="duncanam"
 ENV GIT_EMAIL="22781288+duncanam@users.noreply.github.com"
 ENV GIT_DEFAULT_BRANCH="main"
+ENV TZ="America/Los_Angeles"
 
 ######################################################################
 #                               PACKAGES
@@ -63,10 +64,13 @@ RUN curl -L "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/Je
 USER root
 COPY .config/.zshrc /home/${USERNAME}/.zshrc
 RUN chmod a+rwx /home/${USERNAME}/.zshrc
+COPY .config/.p10k.zsh /home/${USERNAME}/.p10k.zsh
+RUN chmod a+rwx /home/${USERNAME}/.p10k.zsh
 USER ${USERNAME}
 
 RUN  echo 'export SHELL="/bin/zsh"' >> /home/${USERNAME}/.zshrc
 RUN git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
+RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/.powerlevel10k
 
 ######################################################################
 #                               RUST
