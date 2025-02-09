@@ -129,12 +129,11 @@ RUN curl -L "https://github.com/neovim/neovim/releases/download/v${NEOVIM_RELEAS
 ENV PATH="$PATH:~/bin/nvim/bin"
 RUN echo 'export PATH="$PATH:/home/'"${USERNAME}"'/bin/nvim/bin"' >> ~/.zshrc
 
-RUN git clone https://github.com/NvChad/starter ~/.config/nvim
+COPY .config/nvim /home/${USERNAME}/.config/nvim
 
 # TODO: even though this is on the path, it can't find it?
 RUN ~/bin/nvim/bin/nvim --headless +Lazy sync +qall
 RUN ~/bin/nvim/bin/nvim --headless -c "MasonInstallAll" +qall
-
 
 ######################################################################
 #                               FINISH
