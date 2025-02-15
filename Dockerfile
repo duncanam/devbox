@@ -33,6 +33,7 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
   make \
   pip \
   python3 \
+  python3.12-venv \
   npm \
   nodejs \
   ripgrep \
@@ -76,11 +77,18 @@ RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/.powerlev
 #                               RUST
 ######################################################################
 
-#RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-#RUN ~/.cargo/bin/cargo install \
-#  cargo-nextest \
-#  ripgrep
-#RUN ~/.cargo/bin/rustup component add rustfmt
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN ~/.cargo/bin/cargo install \
+  cargo-nextest \
+  ripgrep
+RUN ~/.cargo/bin/rustup component add rustfmt
+
+######################################################################
+#                               PYTHON
+######################################################################
+
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+RUN ~/.local/bin/uv tool install ruff
 
 ######################################################################
 #                               LAZYGIT
@@ -132,8 +140,10 @@ RUN echo 'export PATH="$PATH:/home/'"${USERNAME}"'/bin/nvim/bin"' >> ~/.zshrc
 COPY .config/nvim /home/${USERNAME}/.config/nvim
 
 # TODO: even though this is on the path, it can't find it?
+# TODO: why is MasonInstallAll not working correctly?
 RUN ~/bin/nvim/bin/nvim --headless +Lazy sync +qall
 RUN ~/bin/nvim/bin/nvim --headless -c "MasonInstallAll" +qall
+RUN ~/bin/nvim/bin/nvim --headless -c "MasonInstall rust-analyzer ruff ruff-lsp codelldb debugpy" +qall
 
 ######################################################################
 #                               FINISH
