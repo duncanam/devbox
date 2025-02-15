@@ -143,7 +143,7 @@ COPY .config/nvim /home/${USERNAME}/.config/nvim
 # TODO: why is MasonInstallAll not working correctly?
 RUN ~/bin/nvim/bin/nvim --headless +Lazy sync +qall
 RUN ~/bin/nvim/bin/nvim --headless -c "MasonInstallAll" +qall
-RUN ~/bin/nvim/bin/nvim --headless -c "MasonInstall rust-analyzer ruff ruff-lsp codelldb debugpy" +qall
+RUN ~/bin/nvim/bin/nvim --headless -c "MasonInstall rust-analyzer ruff ruff-lsp codelldb debugpy pyright" +qall
 
 ######################################################################
 #                               FINISH
