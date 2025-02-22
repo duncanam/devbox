@@ -46,7 +46,9 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
 
 RUN chsh -s $(which zsh)
 
-RUN useradd -ms /bin/zsh ${USERNAME}
+# Set empty password by default
+RUN useradd -ms /bin/zsh ${USERNAME} && passwd -d ${USERNAME}
+
 RUN usermod -aG sudo ${USERNAME}
 USER ${USERNAME}
 
@@ -98,9 +100,9 @@ RUN mkdir -p /tmp/lazygit
 WORKDIR /tmp/lazygit
 RUN curl -L "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" -o lazygit.tar.gz && \
   tar -xzf lazygit.tar.gz && \
-  mkdir -p ~/bin && \
-  mv lazygit ~/bin/lazygit
-ENV PATH="$PATH:~/bin"
+  mkdir -p ~/.bin && \
+  mv lazygit ~/.bin/lazygit
+ENV PATH="$PATH:~/.bin"
 RUN echo 'export PATH="$PATH:/home/'"${USERNAME}"'/bin"' >> ~/.zshrc
 RUN mkdir -p ~/.config/lazygit && \
   echo "disableStartupPopups: true" >> ~/.config/lazygit/config.yml
@@ -117,10 +119,10 @@ RUN mkdir -p /tmp/yazi
 WORKDIR /tmp/yazi
 RUN curl -L "https://github.com/sxyazi/yazi/releases/download/v${YAZI_VERSION}/yazi-x86_64-unknown-linux-gnu.zip" -o yazi.zip && \
   unzip yazi.zip && \
-  mv yazi-x86_64-unknown-linux-gnu ~/bin/yazi
-ENV PATH="$PATH:~/bin/yazi"
-RUN echo 'export PATH="$PATH:/home/'"${USERNAME}"'/bin/yazi"' >> ~/.zshrc
-COPY scripts/yazi-cd.sh /tmp/yazi/
+  mv yazi-x86_64-unknown-linux-gnu ~/.bin/yazi
+ENV PATH="$PATH:~/.bin/yazi"
+RUN echo 'export PATH="$PATH:/home/'"${USERNAME}"'/.bin/yazi"' >> ~/.zshrc
+COPY --chown=${USERNAME}:${USERNAME} scripts/yazi-cd.sh /tmp/yazi/
 RUN cat yazi-cd.sh >> ~/.zshrc
 
 ######################################################################
@@ -133,20 +135,27 @@ WORKDIR /tmp/neovim
 RUN curl -L "https://github.com/neovim/neovim/releases/download/v${NEOVIM_RELEASE_VERSION}/nvim-linux64.tar.gz" -o nvim-linux64.tar.gz && \
   echo "${NEOVIM_SHA256} nvim-linux64.tar.gz" | sha256sum -c - && \
   tar -xzf nvim-linux64.tar.gz && \
-  mv nvim-linux64 ~/bin/nvim
-ENV PATH="$PATH:~/bin/nvim/bin"
-RUN echo 'export PATH="$PATH:/home/'"${USERNAME}"'/bin/nvim/bin"' >> ~/.zshrc
+  mv nvim-linux64 ~/.bin/nvim
+ENV PATH="$PATH:~/.bin/nvim/bin"
+RUN echo 'export PATH="$PATH:/home/'"${USERNAME}"'/.bin/nvim/bin"' >> ~/.zshrc
 
-COPY .config/nvim /home/${USERNAME}/.config/nvim
+COPY --chown=${USERNAME}:${USERNAME} .config/nvim /home/${USERNAME}/.config/nvim
 
 # TODO: even though this is on the path, it can't find it?
 # TODO: why is MasonInstallAll not working correctly?
-RUN ~/bin/nvim/bin/nvim --headless +Lazy sync +qall
-RUN ~/bin/nvim/bin/nvim --headless -c "MasonInstallAll" +qall
-RUN ~/bin/nvim/bin/nvim --headless -c "MasonInstall rust-analyzer ruff ruff-lsp codelldb debugpy pyright" +qall
+RUN ~/.bin/nvim/bin/nvim --headless +Lazy sync +qall
+RUN ~/.bin/nvim/bin/nvim --headless -c "MasonInstallAll" +qall
+RUN ~/.bin/nvim/bin/nvim --headless -c "MasonInstall rust-analyzer ruff ruff-lsp codelldb debugpy pyright" +qall
+RUN ~/.bin/nvim/bin/nvim --headless "+TSInstallSync! rust python" +qa
+
+# For some reason Treesitter sync above isn't actually doing anything,
+# so instead let's open a file that treesitter would highlight and have it do stuff.
+# We do an arbitrary long 15s wait because actually quering treesitter using their
+# functions does not seem to work.
+RUN ~/.bin/nvim/bin/nvim --headless -c "edit tmp.py" -c "lua vim.wait(15000)" -c "quit"
 
 ######################################################################
 #                               FINISH
 ######################################################################
 WORKDIR /home/${USERNAME}
-ENTRYPOINT [ "/bin/zsh" ]
+ENTRYPOINT ["/bin/zsh", "-c", "echo 'Please set a password:'; passwd $USER; exec /bin/zsh"]
