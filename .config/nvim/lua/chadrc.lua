@@ -14,6 +14,18 @@ M.base46 = {
 	-- },
 }
 
+M.term = {
+    sizes = { sp = 0.3, vsp = 0.4, ["bo sp"] = 0.3, ["bo vsp"] = 0.4 },
+    float = {
+      relative = "editor",
+      row = 0.05,
+      col = 0.04,
+      width = 0.9,
+      height = 0.8,
+      border = "single",
+    },
+  }
+
 -- M.nvdash = { load_on_startup = true }
 -- M.ui = {
 --       tabufline = {
