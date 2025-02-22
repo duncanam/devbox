@@ -11,10 +11,6 @@ nomap("n", "<leader>e")
 
 local map = vim.keymap.set
 
--- TODO: these were included with nvchad, do I actually need thes
-map("n", ";", ":", { desc = "CMD enter command mode" })
-map("i", "jk", "<ESC>")
-
 -- Save
 map("n", "<leader>w", "<cmd>w<CR>", { desc = "general save file" })
 
@@ -29,3 +25,11 @@ map("n", "<leader>kK", "<cmd>WhichKey <CR>", { desc = "whichkey all keymaps" })
 map("n", "<leader>kk", function()
   vim.cmd("WhichKey " .. vim.fn.input "WhichKey: ")
 end, { desc = "whichkey query lookup" })
+
+-- Debugger
+map("n", "<F9>", "<cmd>lua require'dap'.toggle_breakpoint()<CR>")
+map("n", "<F5>", "<cmd>lua require'dap'.continue()<CR>")
+map("n", "<F10>", "<cmd>lua require'dap'.step_over()<CR>")
+map("n", "<F11>", "<cmd>lua require'dap'.step_into()<CR>")
+map("n", "<F12>", "<cmd>lua require'dap'.step_out()<CR>")
+map("n", "<leader>du", "<cmd>lua require'dapui'.toggle()<CR>", { desc = "Toggle DAP UI"})

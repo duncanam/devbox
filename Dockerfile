@@ -158,4 +158,5 @@ RUN ~/.bin/nvim/bin/nvim --headless -c "edit tmp.py" -c "lua vim.wait(15000)" -c
 #                               FINISH
 ######################################################################
 WORKDIR /home/${USERNAME}
-ENTRYPOINT ["/bin/zsh", "-c", "echo 'Please set a password:'; passwd $USER; exec /bin/zsh"]
+#ENTRYPOINT ["/bin/zsh", "-c", "set -e; echo 'Please set a password:'; passwd $USER; exec /bin/zsh"]
+ENTRYPOINT [ "/bin/zsh" ]
