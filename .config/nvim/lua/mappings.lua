@@ -29,6 +29,7 @@ end, { desc = "whichkey query lookup" })
 -- Debugger
 map("n", "<F9>", "<cmd>lua require'dap'.toggle_breakpoint()<CR>")
 map("n", "<F5>", "<cmd>lua require'dap'.continue()<CR>")
+map("n", "<F4>", "<cmd>lua require'dap'.terminate()<CR>")
 map("n", "<F10>", "<cmd>lua require'dap'.step_over()<CR>")
 map("n", "<F11>", "<cmd>lua require'dap'.step_into()<CR>")
 map("n", "<F12>", "<cmd>lua require'dap'.step_out()<CR>")

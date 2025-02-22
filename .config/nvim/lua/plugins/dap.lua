@@ -3,6 +3,7 @@ return {
   {
     "mfussenegger/nvim-dap",
     config = function()
+      require("dapui").setup()
       require("dap-python").setup("uv")
     end
   },
