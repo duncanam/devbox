@@ -7,9 +7,11 @@
 #
 ######################################################################
 
-FROM ubuntu:noble-20241118.1
+FROM archlinux:base-devel-20250302.0.316047
 
 ENV USERNAME="duncan"
+ENV USER_ID=1000
+ENV GROUP_ID=100
 ENV NEOVIM_RELEASE_VERSION="0.10.1"
 ENV NEOVIM_SHA256="4867de01a17f6083f902f8aa5215b40b0ed3a36e83cc0293de3f11708f1f9793"
 ENV LAZYGIT_VERSION="0.44.1"
@@ -23,17 +25,17 @@ ENV TZ="America/Los_Angeles"
 #                               PACKAGES
 ######################################################################
 
-RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
+RUN pacman -Syu --noconfirm && \
+  pacman -S --noconfirm \
   clang \
   curl \
-  fd-find \
+  fd \
   fontconfig \
   git \
   luarocks \
   make \
-  pip \
-  python3 \
-  python3.12-venv \
+  python-pip \
+  python \
   npm \
   nodejs \
   ripgrep \
@@ -41,15 +43,26 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
   tar \
   unzip \
   wget \
+  which \
   vim \
   zsh
 
-RUN chsh -s $(which zsh)
+RUN chsh -s /usr/sbin/zsh
 
-# Set empty password by default
-RUN useradd -ms /bin/zsh ${USERNAME} && passwd -d ${USERNAME}
+# Need to create group ID if it doesn't exist already
+RUN if ! getent group ${GROUP_ID}; then \
+        groupadd -g ${GROUP_ID} ${USERNAME}; \
+    fi && \
+    # Create the wheel group if it doesn't exist
+    if ! getent group wheel; then \
+        groupadd wheel; \
+    fi && \
+    # Create a user with the specified UID, username, and an empty password
+    useradd -ms /bin/bash -u ${USER_ID} -g ${GROUP_ID} ${USERNAME} && \
+    passwd -d ${USERNAME} && \
+    # Add to wheel group for sudo access
+    usermod -aG wheel ${USERNAME}
 
-RUN usermod -aG sudo ${USERNAME}
 USER ${USERNAME}
 
 RUN mkdir -p ~/.local/share/fonts
