@@ -123,6 +123,8 @@ RUN curl -L "https://github.com/sxyazi/yazi/releases/download/v${YAZI_VERSION}/y
 ENV PATH="$PATH:~/.bin/yazi"
 RUN echo 'export PATH="$PATH:/home/'"${USERNAME}"'/.bin/yazi"' >> ~/.zshrc
 COPY --chown=${USERNAME}:${USERNAME} scripts/yazi-cd.sh /tmp/yazi/
+RUN mkdir -p /home/${USERNAME}/.config/yazi
+COPY --chown=${USERNAME}:${USERNAME} .config/yazi/yazi.toml /home/${USERNAME}/.config/yazi/
 RUN cat yazi-cd.sh >> ~/.zshrc
 
 ######################################################################
